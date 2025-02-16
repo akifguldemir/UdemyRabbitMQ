@@ -35,7 +35,7 @@ class Program
 
         await channel.BasicConsumeAsync(
             "task_queue", // Kuyruk adı
-            false, // Mesajın işlendiğini doğrulamak için false
+            false, // Mesajın işlendiğini doğrulamak için false..BasicAckAsync ile bilgi gelene kadar mesajı silmez
             consumer // Tüketici
         );
 
