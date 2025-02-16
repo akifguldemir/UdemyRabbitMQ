@@ -26,11 +26,16 @@ class Program
         //    arguments: null // Kuyruk argümanları
         //); 
 
+        await channel.BasicQosAsync(
+            0,
+            6, //Gödnerilecek sayı
+            false // her birine 6 tane gönderir. true 6 yıl böler
+            );
         var consumer = new AsyncEventingBasicConsumer(channel);
 
         await channel.BasicConsumeAsync(
             "task_queue", // Kuyruk adı
-            true, // Mesajın işlendiğini doğrulamak için false
+            false, // Mesajın işlendiğini doğrulamak için false
             consumer // Tüketici
         );
 
@@ -38,7 +43,11 @@ class Program
         {
             var body = eventArgs.Body.ToArray();
             var message = Encoding.UTF8.GetString(body);
+
+            Thread.Sleep(1500);
             Console.WriteLine(" [x] Received {0}", message);
+            channel.BasicAckAsync(eventArgs.DeliveryTag, false);
+
             return Task.CompletedTask;
         };
 

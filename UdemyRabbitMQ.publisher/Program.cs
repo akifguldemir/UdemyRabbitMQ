@@ -7,6 +7,8 @@ class Program
 {
     static async Task Main()
     {
+
+        // No Exchange, No Queue, No Binding
         var factory = new ConnectionFactory
         {
             HostName = "localhost"
@@ -23,20 +25,25 @@ class Program
             arguments: null // Kuyruk argümanları
         );
 
-        string message = "Hello World!";
-        var body = Encoding.UTF8.GetBytes(message);
+        Enumerable.Range(1, 50).ToList().ForEach(async x =>
+        {
+            string message = $"Message {x}";
+            var body = Encoding.UTF8.GetBytes(message);
 
-        await channel.BasicPublishAsync(
-            exchange: "",
-            routingKey: "task_queue",
-            mandatory: false,
-            basicProperties: new BasicProperties
-            {
-                DeliveryMode = (DeliveryModes)2 // 2 = Kalıcı mesaj
-            },
-            body: body
-        );
+            await channel.BasicPublishAsync(
+                exchange: "",
+                routingKey: "task_queue",
+                mandatory: false,
+                basicProperties: new BasicProperties
+                {
+                    DeliveryMode = (DeliveryModes)2 // 2 = Kalıcı mesaj
+                },
+                body: body
+            );
 
-        Console.WriteLine(" [x] Sent {0}", message);
+            Console.WriteLine($"Mesaj gönderildi {message}");
+        });
+
+        
     }
 }
