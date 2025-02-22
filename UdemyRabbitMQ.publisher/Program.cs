@@ -97,6 +97,65 @@ class Program
         //mesajı direk ilgili kuyruğa gönderir. rastgele log seviyeleri sahip loglar var diyelim.
         //Kuyruk oluşturacaz ve logu gerekn kuyruğa gönderecez
 
+        //var factory = new ConnectionFactory
+        //{
+        //    HostName = "localhost"
+        //};
+
+        //await using var connection = await factory.CreateConnectionAsync();
+        //await using var channel = await connection.CreateChannelAsync();
+
+        //// **Exchange Tanımlama**
+        //await channel.ExchangeDeclareAsync("logs-direct",
+        //    durable: false,
+        //    type: ExchangeType.Direct
+        //);
+
+        //// **Kuyrukları Tanımlama ve Exchange'e Bağlama**
+        //foreach (var logName in Enum.GetNames(typeof(LogNames)))
+        //{
+        //    var queueName = $"direct-queue-{logName}";
+        //    var routeKey = $"route-{logName}";
+
+        //    await channel.QueueDeclareAsync(queueName,
+        //        durable: false,
+        //        exclusive: false,
+        //        autoDelete: false,
+        //        arguments: null
+        //    );
+
+        //    await channel.QueueBindAsync(queueName, "logs-direct", routeKey);
+        //}
+
+        //// **50 Adet Rastgele Mesaj Gönderme**
+        //for (int i = 1; i <= 50; i++)
+        //{
+        //    // Rastgele bir log seviyesi seç
+        //    LogNames logName = (LogNames)new Random().Next(1, 5); // 1-4 arası değerler
+
+        //    // Route key'yi log seviyesine göre ayarla
+        //    var routeKey = $"route-{logName}";
+
+        //    string message = $"log-type:{logName}";
+        //    var body = Encoding.UTF8.GetBytes(message);
+
+        //    await channel.BasicPublishAsync(
+        //        exchange: "logs-direct",
+        //        routingKey: routeKey,
+        //        mandatory: false,
+        //        basicProperties: new BasicProperties
+        //        {
+        //            DeliveryMode = (DeliveryModes)2 // Kalıcı mesaj
+        //        },
+        //        body: body
+        //    );
+
+        //    Console.WriteLine($"Mesaj gönderildi: {message}, Route Key: {routeKey}");
+        //}
+
+
+        //Topic Exchange.. *.log, *.error, *.info şeklinde filtreleme yapar
+
         var factory = new ConnectionFactory
         {
             HostName = "localhost"
@@ -105,36 +164,44 @@ class Program
         await using var connection = await factory.CreateConnectionAsync();
         await using var channel = await connection.CreateChannelAsync();
 
-        await channel.ExchangeDeclareAsync("logs-direct",
-            durable: false, // fiziksel olarak kaydolur
-            type: ExchangeType.Direct
-            );
+        // **Exchange Tanımlama**
+        await channel.ExchangeDeclareAsync("logs-topic",
+            durable: false,
+            type: ExchangeType.Topic
+        );
 
-        foreach (var item in Enum.GetNames(typeof(LogNames)).ToList())
-        {
-            var queueName = $"direct-queue-{item}";
-        }
+        Random rnd = new Random();
 
-        Enumerable.Range(1, 50).ToList().ForEach(async x =>
+        // **50 Adet Rastgele Mesaj Gönderme**
+        for (int i = 1; i <= 50; i++)
         {
-            string message = $"log {x}";
+
+            // Rastgele bir log seviyesi seç
+            LogNames logName = (LogNames)new Random().Next(1, 5); // 1-4 arası değerler
+
+            LogNames log1 = (LogNames)rnd.Next(1, 5);
+            LogNames log2 = (LogNames)rnd.Next(1, 5);
+            LogNames log3 = (LogNames)rnd.Next(1, 5);
+
+            // Route key'yi log seviyesine göre ayarla
+            var routeKey = $"{log1}.{log2}.{log3}";
+            string message = $"log-type:{log1}{log2}{log3}";
+
             var body = Encoding.UTF8.GetBytes(message);
 
             await channel.BasicPublishAsync(
-                exchange: "logs-fanout",
-                routingKey: "", // filtreleme olmadığı için route key yok
+                exchange: "logs-topic",
+                routingKey: routeKey,
                 mandatory: false,
                 basicProperties: new BasicProperties
                 {
-                    DeliveryMode = (DeliveryModes)2 // 2 = Kalıcı mesaj
+                    DeliveryMode = (DeliveryModes)2 // Kalıcı mesaj
                 },
                 body: body
             );
 
-            Console.WriteLine($"Mesaj gönderildi {message}");
-        });
-
-
+            Console.WriteLine($"Mesaj gönderildi: {message}, Route Key: {routeKey}");
+        }
 
 
     }
