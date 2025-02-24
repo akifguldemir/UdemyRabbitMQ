@@ -154,54 +154,56 @@ class Program
         //}
 
 
-        //Topic Exchange.. *.log, *.error, *.info şeklinde filtreleme yapar
+        ////Topic Exchange.. *.log, *.error, *.info şeklinde filtreleme yapar
 
-        var factory = new ConnectionFactory
-        {
-            HostName = "localhost"
-        };
+        //var factory = new ConnectionFactory
+        //{
+        //    HostName = "localhost"
+        //};
 
-        await using var connection = await factory.CreateConnectionAsync();
-        await using var channel = await connection.CreateChannelAsync();
+        //await using var connection = await factory.CreateConnectionAsync();
+        //await using var channel = await connection.CreateChannelAsync();
 
-        // **Exchange Tanımlama**
-        await channel.ExchangeDeclareAsync("logs-topic",
-            durable: false,
-            type: ExchangeType.Topic
-        );
+        //// **Exchange Tanımlama**
+        //await channel.ExchangeDeclareAsync("logs-topic",
+        //    durable: false,
+        //    type: ExchangeType.Topic
+        //);
 
-        Random rnd = new Random();
+        //Random rnd = new Random();
 
-        // **50 Adet Rastgele Mesaj Gönderme**
-        for (int i = 1; i <= 50; i++)
-        {
+        //// **50 Adet Rastgele Mesaj Gönderme**
+        //for (int i = 1; i <= 50; i++)
+        //{
 
-            // Rastgele bir log seviyesi seç
-            LogNames logName = (LogNames)new Random().Next(1, 5); // 1-4 arası değerler
+        //    // Rastgele bir log seviyesi seç
+        //    LogNames logName = (LogNames)new Random().Next(1, 5); // 1-4 arası değerler
 
-            LogNames log1 = (LogNames)rnd.Next(1, 5);
-            LogNames log2 = (LogNames)rnd.Next(1, 5);
-            LogNames log3 = (LogNames)rnd.Next(1, 5);
+        //    LogNames log1 = (LogNames)rnd.Next(1, 5);
+        //    LogNames log2 = (LogNames)rnd.Next(1, 5);
+        //    LogNames log3 = (LogNames)rnd.Next(1, 5);
 
-            // Route key'yi log seviyesine göre ayarla
-            var routeKey = $"{log1}.{log2}.{log3}";
-            string message = $"log-type:{log1}{log2}{log3}";
+        //    // Route key'yi log seviyesine göre ayarla
+        //    var routeKey = $"{log1}.{log2}.{log3}";
+        //    string message = $"log-type:{log1}{log2}{log3}";
 
-            var body = Encoding.UTF8.GetBytes(message);
+        //    var body = Encoding.UTF8.GetBytes(message);
 
-            await channel.BasicPublishAsync(
-                exchange: "logs-topic",
-                routingKey: routeKey,
-                mandatory: false,
-                basicProperties: new BasicProperties
-                {
-                    DeliveryMode = (DeliveryModes)2 // Kalıcı mesaj
-                },
-                body: body
-            );
+        //    await channel.BasicPublishAsync(
+        //        exchange: "logs-topic",
+        //        routingKey: routeKey,
+        //        mandatory: false,
+        //        basicProperties: new BasicProperties
+        //        {
+        //            DeliveryMode = (DeliveryModes)2 // Kalıcı mesaj
+        //        },
+        //        body: body
+        //    );
 
-            Console.WriteLine($"Mesaj gönderildi: {message}, Route Key: {routeKey}");
-        }
+        //    Console.WriteLine($"Mesaj gönderildi: {message}, Route Key: {routeKey}");
+        //}
+
+
 
 
     }
