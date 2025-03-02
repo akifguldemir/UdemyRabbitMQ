@@ -1,6 +1,9 @@
+using Microsoft.Build.Framework;
 using Microsoft.EntityFrameworkCore;
 using RabbitMQ.Client;
 using RabbitMQWeb.Watermark.Models;
+using RabbitMQWeb.Watermark.Services;
+using System.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +13,10 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseInMemoryDatabase(databaseName: "productDb"));
 
-builder.Services.AddSingleton(sp => new ConnectionFactory() { Uri = new Uri("localhost") });
+builder.Services.AddSingleton(sp => new ConnectionFactory() { Uri = new Uri
+    (builder.Configuration.GetConnectionString("RabbitMQ")) });
+
+builder.Services.AddSingleton<RabbitMQClientService>();
 
 var app = builder.Build();
 

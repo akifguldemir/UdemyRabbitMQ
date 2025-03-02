@@ -1,12 +1,13 @@
 ﻿using RabbitMQ.Client;
+using Microsoft.Extensions.Logging;
 
 namespace RabbitMQWeb.Watermark.Services
 {
-    public class RabbitMQClientService
+    public class RabbitMQClientService : IDisposable
     {
         private readonly ConnectionFactory _connectionFactory;
-        private readonly IConnection _connection;
-        private readonly IChannel _channel;
+        private IConnection? _connection;
+        private IChannel? _channel;
 
         public static string ExchangeName = "ImageDirectExchange";
         public static string RoutingWatermark = "watermark-route-image";
@@ -14,12 +15,60 @@ namespace RabbitMQWeb.Watermark.Services
 
         private readonly ILogger<RabbitMQClientService> _logger;
 
-        public RabbitMQClientService(ConnectionFactory connectionFactory, IConnection connection, IChannel channel, ILogger<RabbitMQClientService> logger)
+        public RabbitMQClientService(ConnectionFactory connectionFactory, ILogger<RabbitMQClientService> logger)
         {
             _connectionFactory = connectionFactory;
-            _connection = connection;
-            _channel = channel;
             _logger = logger;
+            Connect().Wait();
+        }
+
+        public async Task<IChannel> Connect()
+        {
+            if (_connection is not { IsOpen: true })
+            {
+                _connection = await _connectionFactory.CreateConnectionAsync();
+            }
+
+            if (_channel is { IsOpen: true })
+            {
+                return _channel;
+            }
+
+            _channel = await _connection.CreateChannelAsync();
+
+            await _channel.ExchangeDeclareAsync(
+                ExchangeName,
+                type: "direct",
+                durable: true,
+                autoDelete: false
+            );
+
+            await _channel.QueueDeclareAsync(
+                QueueName,
+                durable: true,
+                exclusive: false,
+                autoDelete: false
+            );
+
+            await _channel.QueueBindAsync(
+                queue: QueueName,
+                exchange: ExchangeName,
+                routingKey: RoutingWatermark
+            );
+
+            _logger.LogInformation("RabbitMQ bağlantısı kuruldu ve kanal açıldı.");
+
+            return _channel;
+        }
+
+        public void Dispose()
+        {
+            _channel?.Dispose();
+            _channel = default;
+            _connection?.Dispose();
+            _connection = default;
+
+            _logger.LogInformation($"Rbmq ile bağlantı koptu..");
         }
     }
 }
