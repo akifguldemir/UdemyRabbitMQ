@@ -19,7 +19,6 @@ namespace RabbitMQWeb.Watermark.Services
         {
             _connectionFactory = connectionFactory;
             _logger = logger;
-            Connect().Wait();
         }
 
         public async Task<IChannel> Connect()
@@ -72,3 +71,4 @@ namespace RabbitMQWeb.Watermark.Services
         }
     }
 }
+ 

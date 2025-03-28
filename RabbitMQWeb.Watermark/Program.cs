@@ -13,10 +13,14 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseInMemoryDatabase(databaseName: "productDb"));
 
-builder.Services.AddSingleton(sp => new ConnectionFactory() { Uri = new Uri
-    (builder.Configuration.GetConnectionString("RabbitMQ")) });
+builder.Services.AddSingleton(sp => new ConnectionFactory() 
+    { Uri = new Uri
+        (builder.Configuration.GetConnectionString("RabbitMQ")) 
+    }
+);
 
 builder.Services.AddSingleton<RabbitMQClientService>();
+builder.Services.AddSingleton<RabbitMQPublisher>();
 
 var app = builder.Build();
 
