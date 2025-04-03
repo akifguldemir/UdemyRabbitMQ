@@ -56,11 +56,21 @@ namespace RabbitMQWeb.Watermark.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Price,Stock,ImageName")] Product product, IFormFile ImageFile)
+        public async Task<IActionResult> Create([Bind("Id,Name,Price,Stock")] Product product, IFormFile ImageFile)
         {
             if (!ModelState.IsValid) return View(product);
 
-            if(ImageFile is { Length: > 0 })
+            //if (!ModelState.IsValid)
+            //{
+            //    var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
+            //    foreach (var error in errors)
+            //    {
+            //        Console.WriteLine(error);
+            //    }
+            //    return View(product);
+            //}
+
+            if (ImageFile is { Length: > 0 })
             {
                 var randomImageName = Guid.NewGuid().ToString() + Path.GetExtension(ImageFile.FileName);
                 var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", randomImageName);

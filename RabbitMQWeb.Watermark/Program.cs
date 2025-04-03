@@ -15,7 +15,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddSingleton(sp => new ConnectionFactory() 
     { Uri = new Uri
-        (builder.Configuration.GetConnectionString("RabbitMQ")) 
+        (builder.Configuration.GetConnectionString("RabbitMQ")),  
     }
 );
 
