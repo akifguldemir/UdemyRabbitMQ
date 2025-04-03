@@ -68,7 +68,7 @@ namespace RabbitMQWeb.Watermark.BackgroundServices
                 igm.Dispose();
                 graphic.Dispose();
 
-                _channel.BasicAckAsync(@event.DeliveryTag, false);
+                await _channel.BasicAckAsync(@event.DeliveryTag, false);
 
             }
             catch (Exception ex)
